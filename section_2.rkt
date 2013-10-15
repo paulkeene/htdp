@@ -24,27 +24,27 @@
 (define (Fahrenheit->Celsius degrees-fahrenheit)
   (/ (* (- degrees-fahrenheit 32) 5) 9))
 
-(Fahrenheit->Celsius 100)
-(Fahrenheit->Celsius 32)
-(Fahrenheit->Celsius 66)
+(= (Fahrenheit->Celsius 100) 340/9)
+(= (Fahrenheit->Celsius 32) 0)
+(= (Fahrenheit->Celsius 66) 170/9)
 
 
 ; --- 2.2.2 ---
 (define (dollar->euro dollars)
   (* 0.74 dollars))
 
-(dollar->euro 0)
-(dollar->euro 100)
-(dollar->euro 26.25)
+(= (dollar->euro 0) 0)
+(= (dollar->euro 100) 74)
+(= (dollar->euro 26.25) 19.425)
 
 
 ; --- 2.2.3 ---
 (define (triangle base height)
     (/ (* base height) 2.0))
 
-(triangle 15.0 11.3)
-(triangle 3 20)
-(triangle 1 2)
+(= (triangle 15.0 11.3) 84.75)
+(= (triangle 3 20) 30)
+(= (triangle 1 2) 1)
 
 
 ; --- 2.2.4 ---
@@ -54,9 +54,9 @@
     (* c 100)
   ))
 
-(convert3 1 2 3)
-(convert3 1 0 0)
-(convert3 6 0 7)
+(= (convert3 1 2 3) 321)
+(= (convert3 1 0 0) 1)
+(= (convert3 6 0 7) 706)
 
 
 ; --- 2.2.5 ---
