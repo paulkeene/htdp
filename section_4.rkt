@@ -105,3 +105,124 @@
 
 ; --- 4.2.4 ---
 ; Added tests to section_2.rkt
+
+
+; --- 4.3.1 ---
+; (cond
+;   [< n 10) 20]
+;   [(and (> n 20) (<= n 30))]
+;   [else 1])
+; This expression is illegal since the second clause doesn't
+; contain an answer expression
+
+
+; --- 4.3.2 ---
+; a) .040
+; b) .045
+; c) .060
+
+
+; --- 4.3.3 ---
+; a) 40
+; b) 121
+; c) 495
+
+
+; --- 4.4.1 ---
+(define (interest deposit-amount)
+  (* deposit-amount
+     (cond
+       [(<= deposit-amount 1000) .04]
+       [(<= deposit-amount 5000) .045]
+       [else .05])))
+
+(= (* .04 1000) (interest 1000))
+(= (* .045 5000) (interest 5000))
+(= (* .05 7000) (interest 7000))
+
+
+; --- 4.4.2 ---
+(define (tax income)
+  (* income
+     (cond
+       [(<= income 240) 0]
+       [(<= income 480) .15]
+       [else .28])))
+
+(= 0 (tax 240))
+(= (* .15 480) (tax 480))
+(= (* .28 500) (tax 500))
+
+(define (grosspay hours-worked)
+  (* hours-worked 12))
+
+(= 0 (grosspay 0))
+(= 120 (grosspay 10))
+
+(define (netpay hours-worked)
+    (- (grosspay hours-worked)
+       (tax (grosspay hours-worked))))
+
+(= 408 (netpay 40))
+(= 691.2 (netpay 80))
+
+
+; --- 4.4.3 ---
+; If a customer charges $2000 then they'll receive
+; (.0025 * $500) + (.0050 * $1000) + (.0075 * $500) = $10
+;
+; If a customer charges $2600 then they'll receive
+; (.0025 * $500) + (.0050 * $1000) + (.0075 * $1000) + (.01 * $100) = $14.75
+
+(define (tier1-rewards charge-amount)
+  (* .0025 (min charge-amount 500)))
+
+(= (* .0025 500) (tier1-rewards 500))
+
+(define (tier2-rewards charge-amount)
+  (cond
+    [(<= charge-amount 500) 0]
+    [else (* .0050 (min (- charge-amount 500) 1000))]))
+
+(= (* .0050 1000) (tier2-rewards 1500))
+(= 0 (tier2-rewards 500))
+
+(define (tier3-rewards charge-amount)
+  (cond
+    [(<= charge-amount 1500) 0]
+    [else (* .0075 (min (- charge-amount 1500) 1000))]))
+
+(= (* .0075 1000) (tier3-rewards 2500))
+(= 0 (tier3-rewards 1500))
+
+(define (tier4-rewards charge-amount)
+  (cond
+    [(<= charge-amount 2500) 0]
+    [else (* .01 (- charge-amount 2500))]))
+
+(= (* .01 2000) (tier4-rewards 4500))
+(= 0 (tier4-rewards 2500))
+
+(define (pay-back charge-amount)
+  (+ (tier1-rewards charge-amount) (tier2-rewards charge-amount)
+     (tier3-rewards charge-amount) (tier4-rewards charge-amount)))
+
+(= 10 (pay-back 2000))
+(= 14.75 (pay-back 2600))
+
+
+; --- 4.4.4 ---
+(define (how-many a b c)
+  (cond
+    [(> (* b b) (* 4 a c)) 2]
+    [(= (* b b) (* 4 a c)) 1]
+    [else 0]))
+
+(= 2 (how-many 1 0 -1))
+(= 1 (how-many 2 4 2))
+(= 2 (how-many 3 5 0))
+(= 0 (how-many 4 0 2))
+
+; If we were no longer guaranteed that the equation was proper
+; we would need to add a conditional clause at the beginning that
+; checks to see if a is equal to 0 and, if so, return 0.
