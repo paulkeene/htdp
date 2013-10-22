@@ -81,3 +81,146 @@
 ; keyword is followed by a parenthesized expression of 3 variables and a legal
 ; expression. (+ 'y  (not x)) is a legal function invocation, but it will
 ; fail during runtime since a symbol cannot be added to a boolean.
+
+
+; --- 8.3.1 ---
+; 1. (+ (* (/ 12 8) 2/3)
+;       (- 20 (sqrt 4)))
+;    (+ (* 12/8 2/3)
+;       (- 20 2))
+;    (+ 1
+;       18)
+;    19
+; 2. (cond
+;      [(= 0 0) false]
+;      [(> 0 1) (symbol=? 'a 'a)]
+;      [else (= (/ 1 0) 9)])
+;    (cond
+;      [true false]
+;      [(> 0 1) (symbol=? 'a 'a)]
+;      [else (= (/ 1 0) 9)])
+;    false
+; 3. (cond
+;      [(= 2 0) false]
+;      [(> 2 1) (symbol=? 'a 'a)]
+;      [else (= (/ 1 2) 9)])
+;    (cond
+;      [false false]
+;      [true (symbol=? 'a 'a)]
+;      [else (= (/ 1 2) 9)])
+;    (cond
+;      [true (symbol=? 'a 'a)]
+;      [else (= (/ 1 2) 9)])
+;    (symbol=? 'a 'a)
+;    true
+
+
+; --- 8.3.2 ---
+; f : number number -> number
+; (define (f x y)
+;   (+ (* 3 x) (* y y)))
+;
+; 1. (+ (f 1 2) (f 2 1))
+;    (+ (+ (* 3 1) (* 2 2))
+;       (+ (* 3 2) (* 1 1)))
+;    (+ (+ 3 4)
+;       (+ 6 1))
+;    (+ 7
+;       7)
+;     14
+; 2. (f 1 (* 2 3))
+;    (+ (* 3 1) (* (* 2 3) (* 2 3)))
+;    (+ 3 (* 6 6))
+;    (+ 3 36)
+;    39
+; 3. (f (f 1 (* 2 3)) 19)
+;    (f (f 1 (* 2 3)) 19)
+;    (f (+ (* 3 1) (* (* 2 3) (* 2 3))) 19)
+;    (+ (* 3 (+ (* 3 1) (* (* 2 3) (* 2 3)))) (* 19 19))
+;    (+ (* 3 (+ 3 (* 6 6))) 361)
+;    (+ (* 3 (+ 3 36)) 361)
+;    (+ (* 3 39) 361)
+;    (+ 117 361)
+;    478
+
+
+; --- 8.6.1 ---
+; (define MOVIE-STAR 'JeffBridges)
+; (define ANSWER (+ 42 0))
+; (define AREA (* pi (sqr RADIUS)))
+; (define RESOURCE-AVAILABLE (and (not BUSY) (is-open CONNECTION)))
+; (define THRESHOLD 33.3)
+
+
+; --- 8.6.2 ---
+; (define RADIUS 10)
+;
+; (define DIAMETER (* 2 RADIUS))
+; (define DIAMATER 20)
+;
+; (define CIRCUMFERENCE (* 3.14 DIAMETER))
+; (define CIRCUMFERENCE 62.8)
+
+
+; --- 8.6.3 ---
+; (define PRICE 5)
+;
+; (define SALES-TAX (* .08 PRICE)
+; (define SALES-TAX .4)
+;
+; (define TOTAL (+ PRICE SALES-TAX))
+; (define TOTAL 5.4)
+
+
+; --- 8.7.1 ---
+; 1. (define-struct personnel-record (name salary dob ssn))
+; This is a legal scheme expression because the define-struct keyword
+; is followed by a variable which is followed by variables contained
+; in parentheses.
+;
+; 2. (define-struct oops ())
+; This is not a legal scheme expression because the parentheses following
+; oops do not contain at least one variable name.
+;
+; 3. (define-struct child (dob date (- date dob)))
+; This is not a legal scheme expression because (- date dob) is not a
+; legal variable name. The only thing that is allowed to occur in between
+; the parenthese following the struct's name is variable names.
+;
+; 4. (define-struct (child person) (dob date))
+; This is not a legal scheme expression. First, a valid define-struct
+; statement requires that a variable name follows the define-struct
+; keyword, but here we have (child person). Secondly, only one set
+; of variables enclosed in parentheses is allowed in a define-struct
+; statement.
+;
+; 5. (define-struct child (parents dob date))
+; This is a legal scheme expression. The define-struct keyword is
+; followed by one variable name and one set of variables enclosed
+; in parentheses.
+
+
+; --- 8.7.2 ---
+; 1. (make-point 1 2 3)
+; 2. (make-point (make-point 1 2 3) 4 5)
+; 3. (make-point (+ 1 2) 3 4)
+;
+; All of these are values, although #2 would most likely violate the
+; data definition of a point.
+
+
+; --- 8.7.3 ---
+; (define-struct ball (x y speed-x speed-y))
+;
+; 1. (number? (make-ball 1 2 3 4)) evaluates to false
+; 2. (ball-speed-y (make-ball (+ 1 2) (+ 3 3) 2 3)) evaluates to 3
+; 3. (ball-y (make-ball (+ 1 2) (+ 3 3) 2 3)) evaluates to 6
+;
+; 1. (number? (make-ball 1 3 4)) will produce a runtime error since
+;    only 3 arguments are passed to to the make-ball constructor
+; 2. (ball-x (make-posn 1 2)) this will produce a runtime error since
+;    the ball-x selector expects a ball structure to be passed to it,
+;    but instead is receiving a posn structure
+; 3. (ball-speed-y 5) will produce a runtime error since the ball-speed
+;    selector expects a ball structure to be passed to it, but instead
+;    is passed a number
