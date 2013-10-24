@@ -250,3 +250,420 @@
 
 
 ; --- 10.2.2 ---
+; An inventory record (2) is a structure:
+;   (make-ir-2 name price image)
+; where name is a symbol, price is a number, and image is an image.
+;
+; An inventory is either:
+; 1. empty or
+; 2. (cons ir-2 inv)
+;    where ir2 is an inventory record (2) and inv is an inventory
+;
+; The inventory from Figure 29 can be represented as follow
+; (cons (make-ir-2 'robot 11.95 'image1)
+;   (cons (make-ir-2 'doll 19.95 'image2)
+;     (cons (make-ir-2 'rocket 29.95 'image3) empty)))
+
+(define-struct ir-2 (name price image))
+
+; show-picture : symbol inventory -> image
+; Returns the image of the toy with the specified name or false
+; if there is no toy in the inventory with the specified name.
+(define (show-picture name inventory)
+  (cond
+    [(empty? inventory) false]
+    [else (cond
+            [(symbol=? (ir-2-name (first inventory)) name)
+             (ir-2-image (first inventory))]
+            [else (show-picture name (rest inventory))])]))
+
+(symbol=? 'image2
+          (show-picture 'doll (cons (make-ir-2 'robot 11.95 'image1)
+                              (cons (make-ir-2 'doll 19.95 'image2)
+                              (cons (make-ir-2 'rocket 29.95 'image3) empty)))))
+(equal? #f
+        (show-picture 'ball (cons (make-ir-2 'robot 11.95 'image1)
+                            (cons (make-ir-2 'doll 19.95 'image2)
+                            (cons (make-ir-2 'rocket 29.95 'image3) empty)))))
+
+
+; --- 10.2.3
+; price-of : symbol inventory -> number
+; Returns the price of the toy with the specified name or false
+; if there is no toy in the inventory with the specified name.
+(define (price-of name inventory)
+  (cond
+    [(empty? inventory) false]
+    [else (cond
+            [(symbol=? (ir-2-name (first inventory)) name)
+             (ir-2-price (first inventory))]
+            [else (price-of name (rest inventory))])]))
+
+(= 19.95
+   (price-of 'doll (cons (make-ir-2 'robot 11.95 'image1)
+                   (cons (make-ir-2 'doll 19.95 'image2)
+                   (cons (make-ir-2 'rocket 29.95 'image3) empty)))))
+(equal? #f
+   (price-of 'ball (cons (make-ir-2 'robot 11.95 'image1)
+                   (cons (make-ir-2 'doll 19.95 'image2)
+                   (cons (make-ir-2 'rocket 29.95 'image3) empty)))))
+
+
+; A phone record is a structure:
+;   (make-phone-record name number)
+; where name and number are symbols.
+;
+; A directoy is either:
+; 1. empty or
+; 2. (cons pr dir)
+;    where pr is a phone record and dir is a directory.
+
+(define-struct phone-record (name number))
+
+; whose-number : symbol directory -> symbol
+; Returns the name associated with the given phone number
+(define (whose-number number directory)
+  (cond
+    [(empty? directory) false]
+    [else (cond
+            [(symbol=? (phone-record-number (first directory)) number)
+             (phone-record-name (first directory))]
+            [else (whose-number number (rest directory))])]))
+
+(symbol=? 'Jenny
+          (whose-number '619-208-7176
+                        (cons (make-phone-record 'David '415-206-3232)
+                        (cons (make-phone-record 'Chance '760-324-8275)
+                        (cons (make-phone-record 'Jenny '619-208-7176)
+                        empty)))))
+(equal? #f
+        (whose-number '555-213-8584
+                      (cons (make-phone-record 'David '415-206-3232)
+                      (cons (make-phone-record 'Chance '760-324-8275)
+                      (cons (make-phone-record 'Jenny '619-208-7176)
+                      empty)))))
+
+; phone-number : symbol directory -> symbol
+; Returns the phone number associated with the given name
+(define (phone-number name directory)
+  (cond
+    [(empty? directory) false]
+    [else (cond
+            [(symbol=? (phone-record-name (first directory)) name)
+             (phone-record-number (first directory))]
+            [else (phone-number name (rest directory))])]))
+
+(symbol=? '760-324-8275
+          (phone-number 'Chance
+                        (cons (make-phone-record 'David '415-206-3232)
+                        (cons (make-phone-record 'Chance '760-324-8275)
+                        (cons (make-phone-record 'Jenny '619-208-7176)
+                        empty)))))
+(equal? #f
+        (phone-number 'Rick
+                      (cons (make-phone-record 'David '415-206-3232)
+                      (cons (make-phone-record 'Chance '760-324-8275)
+                      (cons (make-phone-record 'Jenny '619-208-7176)
+                      empty)))))
+
+
+; --- 10.2.5 ---
+; extract>1 : inventory -> inventory
+; Creates an inventory from the initial inventory for all items that
+; cost more than 1 dollar.
+(define (extract>1 an-inv)
+  (cond
+    [(empty? an-inv) empty]
+    [else (cond
+          [(> (ir-price (first an-inv)) 1)
+           (cons (first an-inv) (extract>1 (rest an-inv)))]
+          [else (extract>1 (rest an-inv))])]))
+
+(symbol=? 'robot
+          (ir-name (first (extract>1 (cons (make-ir 'robot 1.95)
+                                     (cons (make-ir 'doll 0.95)
+                                     (cons (make-ir 'rocket 2.95) empty)))))))
+(symbol=? 'rocket
+          (ir-name (first (rest
+          (extract>1 (cons (make-ir 'robot 1.95)
+                     (cons (make-ir 'doll 0.95)
+                     (cons (make-ir 'rocket 2.95) empty))))))))
+
+
+; --- 10.2.6 ---
+; An inventory1 is either:
+; 1. empty or
+; 2. (cons ir inv)
+;    where ir is an inventory record with a price less than or equal to
+;    $1 and inv is an inventory1.
+;
+; extract1 : inventory -> inventory1
+; (define (extract1 an-inv) ...)
+;
+; The refined contract does not affect the development of the above
+; function compared to the previous definition of extract1. If we
+; wanted we could define a new flavor of ir which checkes upon
+; construction that the price of the toy is less than or equal
+; to $1 and throws an error on invalid inputs. If we did this then
+; we would need to use that alternate ir inside this version of
+; extract1.
+
+
+; --- 10.2.7 ---
+; raise-prices : inventory -> inventory
+; Creates an inventory based on the original where each price is
+; 5% greater than the corresponding price in the original inventory.
+(define (raise-prices an-inv)
+  (cond
+    [(empty? an-inv) empty]
+    [else (cons (make-ir
+                  (ir-name (first an-inv))
+                  (* (ir-price (first an-inv)) 1.05))
+                (raise-prices (rest an-inv)))]))
+
+(= 2.0475
+   (ir-price (first (raise-prices
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))
+(> .001 (- .9975
+   (ir-price (first (rest (raise-prices
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))))
+
+(= 3.0975
+   (ir-price (first (rest (rest (raise-prices
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))))
+
+
+; --- 10.2.8 ---
+; recall2 : ty inventory -> inventory
+; Creates an inventory from the original where all toys with the name
+; ty have been filtered out.
+(define (recall2 ty an-inv)
+  (cond
+    [(empty? an-inv) empty]
+    [else (cond
+            [(symbol=? (ir-name (first an-inv)) ty)
+             (recall2 ty (rest an-inv))]
+            [else (cons (first an-inv) (recall2 ty (rest an-inv)))])]))
+
+(symbol=? 'robot
+   (ir-name (first (recall2 'doll
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))
+(symbol=? 'rocket
+   (ir-name (first (rest (recall2 'doll
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty))))))))
+
+
+; --- 10.2.9 ---
+; name-robot : inventory -> inventory
+; Creates an inventory from the original where all toys with the name
+; 'robot are changed to have the name 'r2d3.
+(define (name-robot2 an-inv)
+  (cond
+    [(empty? an-inv) empty]
+    [else (cond
+            [(symbol=? (ir-name (first an-inv)) 'robot)
+             (cons
+               (make-ir 'r2d3 (ir-price (first an-inv)))
+               (name-robot2 (rest an-inv)))]
+            [else
+              (cons (first an-inv) (name-robot2 (rest an-inv)))])]))
+
+(symbol=? 'r2d3
+   (ir-name (first (name-robot2
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))
+(symbol=? 'doll
+   (ir-name (first (rest (name-robot2
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty))))))))
+(symbol=? 'rocket
+   (ir-name (first (rest (rest (name-robot2
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))))
+
+; substitute2 : symbol symbol inventory -> inventory
+; Creates an inventory from the original where all toys with the name
+; old are changed to have the name new.
+(define (substitute2 new old an-inv)
+  (cond
+    [(empty? an-inv) empty]
+    [else (cond
+            [(symbol=? (ir-name (first an-inv)) old)
+             (cons
+               (make-ir new (ir-price (first an-inv)))
+               (substitute2 new old (rest an-inv)))]
+            [else
+              (cons (first an-inv) (substitute2 new old (rest an-inv)))])]))
+
+(symbol=? 'robot
+   (ir-name (first (substitute2 'barbie 'doll
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))
+(symbol=? 'barbie
+   (ir-name (first (rest (substitute2 'barbie 'doll
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty))))))))
+(symbol=? 'rocket
+   (ir-name (first (rest (rest (substitute2 'barbie 'doll
+                      (cons (make-ir 'robot 1.95)
+                      (cons (make-ir 'doll 0.95)
+                      (cons (make-ir 'rocket 2.95) empty)))))))))
+
+
+; --- The following functions are meant to be executed in DrRacket with
+;     the draw.rkt teachpack enabled ---
+
+
+; --- 10.3.1 ---
+; A list of shapes is either:
+; 1. empty or
+; 2. (cons s los)
+;    where s is a shape and los is a list of shapes.
+;
+; A shape is either:
+; 1. A rectangle:
+;      (make-rectangle p w l c)
+;    where p is a posn w is a number l is a number and c is a symbol.
+; 2. A circle:
+;      (make-circle p r c)
+;    where p is a posn r is a number and c is a symbol.
+
+
+;(define-struct rectangle (nw width height color))
+;(define-struct circle (center radius color))
+
+;(define FACE
+;  (cons (make-circle (make-posn 50 50) 40 'red)
+;  (cons (make-rectangle (make-posn 30 20) 5 5 'blue)
+;  (cons (make-rectangle (make-posn 65 20) 5 5 'blue)
+;  (cons (make-rectangle (make-posn 40 75) 20 10 'red)
+;  (cons (make-rectangle (make-posn 45 35) 10 30 'blue)
+;  empty))))))
+
+; fun-for-losh : list-of-shapes -> ???
+; (define (fun-for-losh a-losh)
+;    (cond
+;      [(empty? a-lost) a-losh ...]
+;      [else ... (first a-losh) ... (fun-for-losh (rest a-losh)) ...]))
+
+
+; --- 10.3.2 ---
+; draw-losh : list-of-shapes -> boolean
+; Draws each shape in the list of shapes on the canvas
+;define (draw-losh a-losh)
+; (cond
+;   [(empty? a-losh) true]
+;   [else (and
+;           (draw-shape (first a-losh))
+;           (draw-losh (rest a-losh)))]))
+
+;define (draw-a-rectangle a-rectangle)
+; (draw-solid-rect
+;   (rectangle-nw a-rectangle)
+;   (rectangle-width a-rectangle)
+;   (rectangle-height a-rectangle)
+;   (rectangle-color a-rectangle)))
+
+;define (draw-a-circle a-circle)
+; (draw-circle
+;   (circle-center a-circle)
+;   (circle-radius a-circle)
+;   (circle-color a-circle)))
+
+;define (draw-shape a-shape)
+; (cond
+;   [(rectangle? a-shape) (draw-a-rectangle a-shape)]
+;   [(circle? a-shape) (draw-a-circle a-shape)]
+;   [else false]))
+
+
+; --- 10.3.3 ---
+; translate-losh : list-of-shapes number -> list-of-shapes
+; Moves each shape in the list of shapes delta units on the x-axis
+;define (translate-losh a-losh delta)
+; (cond
+;   [(empty? a-losh) empty]
+;   [else (cons (cond
+;           [(circle? (first a-losh))
+;            (make-circle
+;              (make-posn (+ (posn-x (circle-center (first a-losh))) delta)
+;                         (posn-y (circle-center (first a-losh))))
+;              (circle-radius (first a-losh))
+;              (circle-color (first a-losh)))]
+;           [else
+;            (make-rectangle
+;              (make-posn (+ (posn-x (rectangle-nw (first a-losh))) delta)
+;                         (posn-y (rectangle-nw (first a-losh))))
+;              (rectangle-width (first a-losh))
+;              (rectangle-height (first a-losh))
+;              (rectangle-color (first a-losh)))])
+;           (translate-losh (rest a-losh) delta))]))
+
+
+; --- 10.3.4 ---
+; clear-losh : list-of-shapes -> boolean
+; Clears each shape in the list of shapes on the canvas
+;define (clear-losh a-losh)
+; (cond
+;   [(empty? a-losh) true]
+;   [else (and
+;           (clear-shape (first a-losh))
+;           (clear-losh (rest a-losh)))]))
+
+;define (clear-a-rectangle a-rectangle)
+; (clear-solid-rect
+;   (rectangle-nw a-rectangle)
+;   (rectangle-width a-rectangle)
+;   (rectangle-height a-rectangle)
+;   (rectangle-color a-rectangle)))
+
+;define (clear-a-circle a-circle)
+; (clear-circle
+;   (circle-center a-circle)
+;   (circle-radius a-circle)
+;   (circle-color a-circle)))
+
+;define (clear-shape a-shape)
+; (cond
+;   [(rectangle? a-shape) (clear-a-rectangle a-shape)]
+;   [(circle? a-shape) (clear-a-circle a-shape)]
+;   [else false]))
+
+; --- 10.3.5 ---
+; draw-and-clear-picture : list-of-shapes number -> boolean
+; Draws a list of shapes to the canvas, sleeps for the specified number
+; of seconds, and clears the same shapes from the canvas.
+;define (draw-and-clear-picture a-losh seconds)
+; (and
+;   (draw-losh a-losh)
+;   (sleep-for-a-while seconds)
+;   (clear-losh a-losh)))
+
+
+; --- 10.3.6 ---
+; move-picture : list-of-shapes delta -> list-of-shapes
+; Draws each shape in the list of shapes, sleeps for a duration,
+; clears each shape in the list, and then returns the list of shapes
+; translated by delta along the x-axis.
+;define (move-picture a-losh delta)
+; (cond
+;   [(and (draw-losh a-losh)
+;         (sleep-for-a-while 1)
+;         (clear-losh a-losh))
+;    (translate-losh a-losh delta)]
+;   [else a-losh]))
