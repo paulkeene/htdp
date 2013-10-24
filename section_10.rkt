@@ -565,94 +565,94 @@
 ; --- 10.3.2 ---
 ; draw-losh : list-of-shapes -> boolean
 ; Draws each shape in the list of shapes on the canvas
-;define (draw-losh a-losh)
-; (cond
-;   [(empty? a-losh) true]
-;   [else (and
-;           (draw-shape (first a-losh))
-;           (draw-losh (rest a-losh)))]))
+;(define (draw-losh a-losh)
+;  (cond
+;    [(empty? a-losh) true]
+;    [else (and
+;            (draw-shape (first a-losh))
+;            (draw-losh (rest a-losh)))]))
 
-;define (draw-a-rectangle a-rectangle)
-; (draw-solid-rect
-;   (rectangle-nw a-rectangle)
-;   (rectangle-width a-rectangle)
-;   (rectangle-height a-rectangle)
-;   (rectangle-color a-rectangle)))
+;(define (draw-a-rectangle a-rectangle)
+;  (draw-solid-rect
+;    (rectangle-nw a-rectangle)
+;    (rectangle-width a-rectangle)
+;    (rectangle-height a-rectangle)
+;    (rectangle-color a-rectangle)))
 
-;define (draw-a-circle a-circle)
-; (draw-circle
-;   (circle-center a-circle)
-;   (circle-radius a-circle)
-;   (circle-color a-circle)))
+;(define (draw-a-circle a-circle)
+;  (draw-circle
+;    (circle-center a-circle)
+;    (circle-radius a-circle)
+;    (circle-color a-circle)))
 
-;define (draw-shape a-shape)
-; (cond
-;   [(rectangle? a-shape) (draw-a-rectangle a-shape)]
-;   [(circle? a-shape) (draw-a-circle a-shape)]
-;   [else false]))
+;(define (draw-shape a-shape)
+;  (cond
+;    [(rectangle? a-shape) (draw-a-rectangle a-shape)]
+;    [(circle? a-shape) (draw-a-circle a-shape)]
+;    [else false]))
 
 
 ; --- 10.3.3 ---
 ; translate-losh : list-of-shapes number -> list-of-shapes
 ; Moves each shape in the list of shapes delta units on the x-axis
-;define (translate-losh a-losh delta)
-; (cond
-;   [(empty? a-losh) empty]
-;   [else (cons (cond
-;           [(circle? (first a-losh))
-;            (make-circle
-;              (make-posn (+ (posn-x (circle-center (first a-losh))) delta)
-;                         (posn-y (circle-center (first a-losh))))
-;              (circle-radius (first a-losh))
-;              (circle-color (first a-losh)))]
-;           [else
-;            (make-rectangle
-;              (make-posn (+ (posn-x (rectangle-nw (first a-losh))) delta)
-;                         (posn-y (rectangle-nw (first a-losh))))
-;              (rectangle-width (first a-losh))
-;              (rectangle-height (first a-losh))
-;              (rectangle-color (first a-losh)))])
-;           (translate-losh (rest a-losh) delta))]))
+;(define (translate-losh a-losh delta)
+;  (cond
+;    [(empty? a-losh) empty]
+;    [else (cons (cond
+;            [(circle? (first a-losh))
+;             (make-circle
+;               (make-posn (+ (posn-x (circle-center (first a-losh))) delta)
+;                          (posn-y (circle-center (first a-losh))))
+;               (circle-radius (first a-losh))
+;               (circle-color (first a-losh)))]
+;            [else
+;             (make-rectangle
+;               (make-posn (+ (posn-x (rectangle-nw (first a-losh))) delta)
+;                          (posn-y (rectangle-nw (first a-losh))))
+;               (rectangle-width (first a-losh))
+;               (rectangle-height (first a-losh))
+;               (rectangle-color (first a-losh)))])
+;            (translate-losh (rest a-losh) delta))]))
 
 
 ; --- 10.3.4 ---
 ; clear-losh : list-of-shapes -> boolean
 ; Clears each shape in the list of shapes on the canvas
-;define (clear-losh a-losh)
-; (cond
-;   [(empty? a-losh) true]
-;   [else (and
-;           (clear-shape (first a-losh))
-;           (clear-losh (rest a-losh)))]))
+;(define (clear-losh a-losh)
+;  (cond
+;    [(empty? a-losh) true]
+;    [else (and
+;            (clear-shape (first a-losh))
+;            (clear-losh (rest a-losh)))]))
 
-;define (clear-a-rectangle a-rectangle)
-; (clear-solid-rect
-;   (rectangle-nw a-rectangle)
-;   (rectangle-width a-rectangle)
-;   (rectangle-height a-rectangle)
-;   (rectangle-color a-rectangle)))
+;(define (clear-a-rectangle a-rectangle)
+;  (clear-solid-rect
+;    (rectangle-nw a-rectangle)
+;    (rectangle-width a-rectangle)
+;    (rectangle-height a-rectangle)
+;    (rectangle-color a-rectangle)))
 
-;define (clear-a-circle a-circle)
-; (clear-circle
-;   (circle-center a-circle)
-;   (circle-radius a-circle)
-;   (circle-color a-circle)))
+;(define (clear-a-circle a-circle)
+;  (clear-circle
+;    (circle-center a-circle)
+;    (circle-radius a-circle)
+;    (circle-color a-circle)))
 
-;define (clear-shape a-shape)
-; (cond
-;   [(rectangle? a-shape) (clear-a-rectangle a-shape)]
-;   [(circle? a-shape) (clear-a-circle a-shape)]
-;   [else false]))
+;(define (clear-shape a-shape)
+;  (cond
+;    [(rectangle? a-shape) (clear-a-rectangle a-shape)]
+;    [(circle? a-shape) (clear-a-circle a-shape)]
+;    [else false]))
 
 ; --- 10.3.5 ---
 ; draw-and-clear-picture : list-of-shapes number -> boolean
 ; Draws a list of shapes to the canvas, sleeps for the specified number
 ; of seconds, and clears the same shapes from the canvas.
-;define (draw-and-clear-picture a-losh seconds)
-; (and
-;   (draw-losh a-losh)
-;   (sleep-for-a-while seconds)
-;   (clear-losh a-losh)))
+;(define (draw-and-clear-picture a-losh seconds)
+;  (and
+;    (draw-losh a-losh)
+;    (sleep-for-a-while seconds)
+;    (clear-losh a-losh)))
 
 
 ; --- 10.3.6 ---
@@ -660,10 +660,8 @@
 ; Draws each shape in the list of shapes, sleeps for a duration,
 ; clears each shape in the list, and then returns the list of shapes
 ; translated by delta along the x-axis.
-;define (move-picture a-losh delta)
-; (cond
-;   [(and (draw-losh a-losh)
-;         (sleep-for-a-while 1)
-;         (clear-losh a-losh))
-;    (translate-losh a-losh delta)]
-;   [else a-losh]))
+;(define (move-picture delta a-losh)
+;  (cond
+;    [(draw-and-clear-picture a-losh 1)
+;     (translate-losh a-losh delta)]
+;    [else a-losh]))
