@@ -310,21 +310,139 @@
 
 
 ; --- 11.4.5 ---
+; tabulate-f-lim : N[limit] N[>= limit] -> list-of-posns
+; Constructs a list of posns where the posns are of the form
+; [(n, f(n)) (n-1, f(n-1)) ... (limit+1, f(limit+1)]. The resulting
+; list will contain (n-limit) elements.
+(define (tabulate-f-lim limit n)
+  (cond
+    [(= limit n) empty]
+    [else (cons (make-posn n (f n))
+                (tabulate-f-lim limit (sub1 n)))]))
+
+(equal? (cons (make-posn 42 (f 42)) empty)
+        (tabulate-f-lim 41 42))
+(equal? (cons (make-posn 57 (f 57))
+        (cons (make-posn 56 (f 56))
+        (cons (make-posn 55 (f 55)) empty)))
+        (tabulate-f-lim 54 57))
 
 
 ; --- 11.4.6 ---
+; tabulate-f-up-to-20 : N[<= 20] -> list-of-posns
+; Constructs a list of posns where the posns are of the form
+; [(n, f(n)), (n+1 (f(n+1))) ... (19, f(19))]. The resulting
+; list will contain 20-n elements.
+(define (tabulate-f-up-to-20 n)
+  (cond
+    [(= 20 n) empty]
+    [else (cons (make-posn n (f n))
+                (tabulate-f-up-to-20 (add1 n)))]))
+
+(equal? (cons (make-posn 17 (f 17))
+        (cons (make-posn 18 (f 18))
+        (cons (make-posn 19 (f 19))
+        empty)))
+        (tabulate-f-up-to-20 17))
 
 
 ; --- 11.4.7 ---
+; is-not-divisible-by<=i number number -> boolean
+; Determines if the integer m is divisible by any integers between
+; 1 (exclusive) and i (inclusive). Assumes i < m and 1 <= i.
+(define (is-not-divisible-by<=i i m)
+  (cond
+    [(= 1 i) true]
+    [else (and
+            (not (= 0 (remainder m i)))
+            (is-not-divisible-by<=i (sub1 i) m))]))
+
+(equal? #f (is-not-divisible-by<=i 3 4))
+(equal? #t (is-not-divisible-by<=i 4 5))
+
+; prime? : number -> boolean
+; Determines if n is prime
+(define (prime? n)
+  (is-not-divisible-by<=i (- n 1) n))
+
+(equal? #t (prime? 2))
+(equal? #t (prime? 3))
+(equal? #t (prime? 7))
+(equal? #f (prime? 26))
 
 
 ; --- 11.5.1 ---
+; add : N N -> N
+; Adds x and y without using the + operator
+(define (add x y)
+  (cond
+    [(zero? y) x]
+    [else (add1 (add x (sub1 y)))]))
+
+(= 7 (add 4 3))
+(= 52 (add 52 0))
+(= 30 (add 8 22))
 
 
 ; --- 11.5.2 ---
+; multiply-by-pi : N -> number
+; Computes the product of n and pi without using the * operator
+(define (multiply-by-pi n)
+  (cond
+    [(zero? n) 0]
+    [(= 1 n) 3.14]
+    [else (+ 3.14 (multiply-by-pi (sub1 n)))]))
+
+(= 0 (multiply-by-pi 0))
+(= 3.14 (multiply-by-pi 1))
+(= 9.42 (multiply-by-pi 3))
+
+; multiply N N -> N
+; Computes the product of x and y without using the * operator
+(define (multiply x y)
+  (cond
+    [(zero? y) 0]
+    [(= 1 y) x]
+    [else (add x (multiply x (sub1 y)))]))
+
+(= 48 (multiply 6 8))
+(= 27 (multiply 9 3))
+(= 0 (multiply 0 5))
+(= 0 (multiply 8 0))
 
 
 ; --- 11.5.3 ---
+; exponent : N N -> N
+; Computes x raised to the nth power without using the + or *
+; operators
+(define (exponent x n)
+  (cond
+    [(zero? n) 1]
+    [(= 1 n) x]
+    [else (multiply x (exponent x (sub1 n)))]))
 
+(= 1 (exponent 5 0))
+(= 9 (exponent 3 2))
+(= 125 (exponent 5 3))
 
 ; --- 11.5.4 ---
+; 0 = empty
+; 3 = (cons (cons (cons 'a empty) empty) empty)
+; 8 = (cons (cons (cons (cons (cons (cons (cons (cons 'a
+;      empty) empty) empty) empty) empty))))
+
+; addDL DL DL -> DL
+; Computes the deep list resulting from adding two deep lists together
+; Examples (addDL (cons 'a empty) (cons (cons 'a empty) empty)) -> (cons (cons (cons 'a empty) empty) empty)
+;          (addDL (cons (cons 'a empty) empty) (cons 'a empty)) -> (cons (cons (cons 'a empty) empty) empty)
+(define (addDL n m)
+  (cond
+    [(empty? n) m]
+    [(empty? m) n]
+    [(symbol? (first n)) (cons m empty)]
+    [else (cons (addDL (first n) m) empty)]))
+
+(= 5 (depth (addDL (cons (cons 'a empty) empty)
+                   (cons (cons (cons 'a empty) empty) empty))))
+(= 2 (depth (addDL (cons (cons 'a empty) empty) empty)))
+(= 2 (depth (addDL empty (cons (cons 'a empty) empty))))
